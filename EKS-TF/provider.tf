@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 1.8.0"
+  required_version = ">= 1.5.0"
 
   required_providers {
     aws = {
@@ -16,8 +16,8 @@ terraform {
 # Configure the AWS Provider
 provider "aws" {
   region                   = var.aws_region
-  shared_credentials_files = ["~/.aws/credentials"]  # Use AWS credentials file
-  profile                  = "default"  # Specify AWS CLI profile if required
+  shared_credentials_files = ["~/.aws/credentials"] # Use AWS credentials file
+  profile                  = "default"              # Specify AWS CLI profile if required
   default_tags {
     tags = {
       Project     = var.project_name

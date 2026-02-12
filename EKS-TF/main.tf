@@ -26,11 +26,6 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
   role       = aws_iam_role.eks_cluster_role.name
 }
 
-resource "aws_iam_role_policy_attachment" "eks_service_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
-  role       = aws_iam_role.eks_cluster_role.name
-}
-
 # Get VPC data
 data "aws_vpc" "default" {
   default = true
@@ -96,7 +91,6 @@ resource "aws_eks_cluster" "eks_cluster" {
 
   depends_on = [
     aws_iam_role_policy_attachment.eks_cluster_policy,
-    aws_iam_role_policy_attachment.eks_service_policy,
   ]
 
   tags = {
@@ -165,9 +159,9 @@ resource "aws_eks_node_group" "eks_node_group" {
 
   instance_types = var.instance_types
 
-  ami_type       = "AL2_x86_64"
-  capacity_type  = "ON_DEMAND"
-  disk_size      = var.disk_size
+  ami_type      = "AL2_x86_64"
+  capacity_type = "ON_DEMAND"
+  disk_size     = var.disk_size
 
   remote_access {
     ec2_ssh_key = var.ssh_key_name
@@ -178,6 +172,7 @@ resource "aws_eks_node_group" "eks_node_group" {
   }
 
   depends_on = [
+    aws_eks_cluster.eks_cluster,
     aws_iam_role_policy_attachment.eks_worker_node_policy,
     aws_iam_role_policy_attachment.eks_cni_policy,
     aws_iam_role_policy_attachment.ecr_read_only,
@@ -206,6 +201,7 @@ resource "aws_cloudwatch_log_group" "eks_logs" {
 # OpenID Connect Provider for EKS
 resource "aws_iam_openid_connect_provider" "eks_oidc_provider" {
   client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
   url             = aws_eks_cluster.eks_cluster.identity[0].oidc[0].issuer
 
   tags = {
@@ -230,7 +226,7 @@ resource "aws_iam_role" "lb_controller_role" {
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
           StringEquals = {
-            "${replace(aws_iam_openid_connect_provider.eks_oidc_provider.url, "https://", ""):sub" = "system:serviceaccount:kube-system:aws-load-balancer-controller"
+            "${replace(aws_iam_openid_connect_provider.eks_oidc_provider.url, "https://", "")}:sub" = "system:serviceaccount:kube-system:aws-load-balancer-controller"
           }
         }
       }

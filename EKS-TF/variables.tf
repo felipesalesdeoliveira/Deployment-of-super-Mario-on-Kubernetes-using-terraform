@@ -7,7 +7,7 @@ variable "cluster_name" {
 variable "aws_region" {
   description = "AWS region for resources"
   type        = string
-  default     = "ap-south-1"
+  default     = "us-east-1"
 }
 
 variable "eks_version" {
@@ -25,19 +25,19 @@ variable "node_group_name" {
 variable "instance_types" {
   description = "EC2 instance types for node group"
   type        = list(string)
-  default     = ["t3.medium"]
+  default     = ["t3.small"]
 }
 
 variable "desired_size" {
   description = "Desired number of worker nodes"
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "max_size" {
   description = "Maximum number of worker nodes"
   type        = number
-  default     = 4
+  default     = 2
 }
 
 variable "min_size" {
@@ -49,7 +49,7 @@ variable "min_size" {
 variable "disk_size" {
   description = "Disk size in GiB for worker nodes"
   type        = number
-  default     = 30
+  default     = 20
 }
 
 variable "ssh_key_name" {
